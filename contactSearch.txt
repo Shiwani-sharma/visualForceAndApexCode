@@ -1,0 +1,64 @@
+                    <!--  ===========================================================
+                                              VisualForce Code
+                          =========================================================== -->
+
+                   <!--                        Assignment 1
+         				Place a text box to enter the account name. 
+         				Button - Click to search Contacts
+         				It should display the contacts
+    					Use APEX-Repeat to show the list of contacts and the table should be designed properly. -->
+
+<!-- A custom controller is an Apex class that implements all of the logic for a page without leveraging a standard controller -->
+
+<apex:page controller="ContactSearchTask"> 
+    <apex:form >
+        <apex:pageBlock >
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton value="searchContacts" action="{!searchContacts}" reRender="contact-table" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection id="contact-table" columns="1">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="AccountName" />
+                    <apex:inputText value="{!name}" />
+                </apex:pageBlockSectionItem>
+                  <apex:pageBlockTable value="{!contacts}" var="c">
+                    <apex:column >
+                        <apex:facet name="header">Name</apex:facet>
+                        {!c.Name}
+                    </apex:column>
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+        </apex:pageBlock>  
+    </apex:form>
+</apex:page>
+
+                              -----------------------------------
+
+
+
+                    <!--  ===========================================================
+                                              Apex Code
+                          =========================================================== -->
+
+
+public with sharing class ContactSearchTask       //Create a class with Sharing, Apex code has access to all objects and fields object permissions, field-level security, sharing rules aren't applied for the current user
+{
+    public List<Contact> contacts { get; set; }  //Create a variable List type contacts 
+    public String name { get; set; }             //Create a variable string type name
+    
+        public ContactSearchTask()              //Create a construtor of class
+    {
+        contacts = new List<Contact>();        //Object       
+    }
+
+     public pagereference searchContacts()    //Create a method name searchContacts  
+    {
+        getContacts();
+        return null;
+    } 
+    public List<Contact> getContacts()        //Create a method name getContacts in which query is used to fetch the contacts from Account
+    {
+        contacts = [select Id ,Name from Contact  where Account.Name = :name ];
+        return contacts;
+    }
+}
