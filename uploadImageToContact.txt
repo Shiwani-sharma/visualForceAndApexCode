@@ -1,0 +1,70 @@
+                    <!--  ===========================================================
+                                              VisualForce Code
+                          =========================================================== -->
+
+<apex:page standardController="Contact" extensions="AddImageContact">
+  <apex:form >
+      
+      <apex:pageBlock title="Upload Image">
+        <apex:pageBlockSection >
+            
+<!--   PageBlockSectionItem Start  -->
+            <apex:pageBlockSectionItem >
+             <apex:image value="/servlet/servlet.FileDownload?file={!ImageId}" rendered="{!NOT(ISBLANK(ImageId))}"/>
+            </apex:pageBlockSectionItem>
+<!--   PageBlockSectionItem End     -->
+
+            
+<!--   PageBlockSectionItem Start  -->
+          <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Upload">
+                    <apex:outputPanel >
+                        <apex:inputFile id="uploadfile" value="{!att.body}" fileName="{!att.name}"></apex:inputFile>
+                           <apex:commandButton value="upload" action="{!uploadImage}"/>
+                    </apex:outputPanel>
+                </apex:outputLabel>
+            </apex:pageBlockSectionItem>
+<!--   PageBlockSectionItem End  -->
+
+            
+       </apex:pageBlockSection>          
+     </apex:pageBlock>
+   </apex:form>
+</apex:page>
+
+
+
+                    /*  ===========================================================
+                                              ApexClass Code
+                        =========================================================== */
+
+public with sharing class AddImageContact{   //Create a class with Sharing, Apex code has access to all objects and fields object permissions, field-level security, sharing rules aren't applied for the current user
+    public Attachment att{get;set;}         // Create a Variable     
+    private Id parentId{get;set;}          // Create a Variable  
+    
+    //Create a constructor of class
+    public AddImageContact(ApexPages.StandardController controller)
+    {
+        att = new Attachment();           //Create a instance of class
+        parentId = controller.getId();   //It takes current Id of the record where we are uploading the image
+    }
+    
+    public void uploadImage(){           //Create the method
+        att.parentId=parentId;
+        att.Name ='image';
+        insert att;
+        att = new Attachment();        //Final initialization so it will upload the image
+    }
+    
+    public Id getImageId(){           //Create a method it will return the image Id
+       Id result = null; 
+                                     //Created the list of Attachment it will pull the data from Attachment
+       List<Attachment> images= [select id from Attachment where Name='image' and parentId=:parentId order by CreatedDate DESC];
+                                    //Used CreatedDate because we can upload multiple images whenever we upload new image then the existing image will not be delete from database the recently upload image will show
+       if(images.size()>0)
+        {
+            result = images[0].id;
+        }
+        return result;
+    }
+}
